@@ -4,41 +4,53 @@ import { ref } from 'vue'
 
 export default {
   setup() {
+
+    const defaultTasks = [
+      {
+        id: 1,
+        link: 'https://google.com',
+        name: 'Task-1'
+      },
+      {
+        id: 2,
+        link: 'https://linkedin.com',
+        name: "Task-2"
+      },
+      {
+        id: 3,
+        link: "https://claude.com",
+        name: "Task-3"
+      },
+      {
+        id: 4,
+        link: "https://facebook.com",
+        name: "Task-4"
+      },
+      {
+        id: 5,
+        link: "https://youtube.com",
+        name: "Task-5"
+      }
+    ];
+
+    const saveTasks = localStorage.getItem('user_tasks');
+
+    const saveLocalStorage = () => {
+      localStorage.setItem('user_tasks', JSON.stringify(user.value.tasks))
+    }
+
+
     const user = ref({
       name: "mhdy",
       status: 'conductor',
-      tasks: [
-        {
-          id: 1,
-          link: 'https://google.com',
-          name: 'Task-1'
-        },
-        {
-          id: 2,
-          link: 'https://linkedin.com',
-          name: "Task-2"
-        },
-        {
-          id: 3,
-          link: "https://claude.com",
-          name: "Task-3"
-        },
-        {
-          id: 4,
-          link: "https://facebook.com",
-          name: "Task-4"
-        },
-        {
-          id: 5,
-          link: "https://youtube.com",
-          name: "Task-5"
-        }
-      ]
+      tasks: saveTasks ? JSON.parse(saveTasks) : defaultTasks
     })
 
 
     const newTask = ref("");
     const newLink = ref("");
+    const isEdit = ref(false);
+    const editId = ref(null);
 
     const clicked = () => {
       console.log('clicked');
@@ -46,27 +58,43 @@ export default {
     }
 
     const addTask = () => {
+
+      if (newTask.value.length == 0) {
+        alert("Please Enter task name");
+      }
+      if (newLink.value.length == 0) {
+        alert("Please Enter task link");
+      }
+
       const data = {
+        id: Math.floor(Math.random() * (100 - 10 + 1)) + 10,
         link: newLink.value,
         name: newTask.value
       }
-      user.value.tasks.unshift(data);
-      newTask.value = "";
-      newLink.value = "";
+
+      if (isEdit.value == true) {
+        const element = user.value.tasks.find(item => item.id == editId.value);
+        if (element) {
+          element.name = data.name;
+          element.link = data.link;
+        }
+      }
+      else {
+        user.value.tasks.unshift(data);
+      }
+      saveLocalStorage();
+      newLink.value = ""
+      newTask.value = ""
     }
 
     const updateTask = (id) => {
       const element = user.value.tasks.find(item => item.id == id)
-      newTask.value = element.name;
-      newLink.value = element.link;
-      const data = {
-        name: newTask.value,
-        link: newLink.value
+      if (element) {
+        newTask.value = element.name;
+        newLink.value = element.link;
+        isEdit.value = true;
+        editId.value = id;
       }
-      element.value.name = newTask.value;
-      element.value.link = newLink.value;
-      newTask.value = "";
-      newLink.value = "";
     }
 
 
@@ -74,6 +102,7 @@ export default {
       // user.value.tasks.splice(index, 1); remove one element from this index
       const value = user.value.tasks.filter((item) => item.id != id);
       user.value.tasks = value;
+      saveLocalStorage();
     }
 
 
@@ -93,9 +122,6 @@ export default {
 <template lang="">
   <div>
     <h3>this is dynamic data {{user.name}}</h3>
-    <!-- <p>
-      this user status is : <span>{{ user.status == true ? 'Active' : 'In Active'}}</span>
-    </p> -->
     <p>
       this user status is : 
       <span v-if="user.status == 'conductor'" class='px-3 py-1 bg-lime-500 text-sm text-[#555] rounded-full'>
