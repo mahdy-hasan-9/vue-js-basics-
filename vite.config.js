@@ -13,7 +13,17 @@ export default defineConfig({
     tailwindcss(),
   ],
   server: {
-    port : 8080 ,
+    watch: {
+      ignored: ['**/db.json', '**/jobs.json'] 
+    },
+    port: 8080,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, "")
+      }
+    }
   },
   resolve: {
     alias: {
