@@ -1,11 +1,11 @@
 <script setup>
-import Reactive from './Reactive.vue';
-import Computed from './Computed.vue';
-import ReactiveAndComputed from './ReactiveAndComputed.vue';
+import { ref } from 'vue'
+import Emit03 from './emit-3/Emit03.vue';
+
 </script>
 
 <template>
-  <ReactiveAndComputed />
+  <Emit03/>
 </template>
 
 <style scoped></style>
